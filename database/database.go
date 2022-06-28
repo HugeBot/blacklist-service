@@ -48,7 +48,7 @@ func Init(opts *Options) error {
 
 	opts.init()
 
-	newPool, err := pgxpool.Connect(ctx, fmt.Sprintf("postgresl://%s:%s@%s:%d/%s", opts.Username, opts.Password, opts.Host, opts.Port, opts.Name))
+	newPool, err := pgxpool.Connect(ctx, fmt.Sprintf("postgres://%s:%s@%s:%d/%s&application_name=blacklist-service", opts.Username, opts.Password, opts.Host, opts.Port, opts.Name))
 	if err != nil {
 		return err
 	}
