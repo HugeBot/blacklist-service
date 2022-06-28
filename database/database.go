@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -38,4 +39,12 @@ func New(opts *Options) (*Database, error) {
 	}
 
 	return database, nil
+}
+
+func (db *Database) Query(sql string, args ...interface{}) (pgx.Rows, error) {
+	return db.pool.Query(ctx, sql, args...)
+}
+
+func (db *Database) QueryRow(sql string, args ...interface{}) pgx.Row {
+	return db.pool.QueryRow(ctx, sql, args...)
 }
