@@ -36,9 +36,13 @@ func init() {
 func main() {
 	app = fiber.New()
 
-	app.Get("/guilds/:id", middlewares.ClientAuthorization, controllers.GetGuildByID)
+	app.Get("/guild/:id", middlewares.ClientAuthorization, controllers.GetGuildByID)
 
-	app.Post("/guilds/:id/report", middlewares.ClientAuthorization, controllers.ReportGuildByID)
+	app.Post("/report/guild/:id", middlewares.ClientAuthorization, controllers.ReportGuildByID)
+
+	app.Get("/user/:id", middlewares.ClientAuthorization, controllers.GetGuildByID)
+
+	app.Post("/report/user/:id", middlewares.ClientAuthorization, controllers.ReportGuildByID)
 
 	log.Fatal(app.Listen(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)))
 }
