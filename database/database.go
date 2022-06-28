@@ -3,18 +3,16 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 var (
-	ctx = context.Background()
-)
-
-type Database struct {
+	ctx  = context.Background()
 	pool *pgxpool.Pool
-}
+)
 
 type Options struct {
 	Host     string `yaml:"host"`
@@ -24,27 +22,50 @@ type Options struct {
 	Password string `yaml:"password"`
 }
 
-func New(opts *Options) (*Database, error) {
-	pool, err := pgxpool.Connect(ctx, fmt.Sprintf("postgresl://%s:%s@%s:%d/%s", opts.Username, opts.Password, opts.Host, opts.Port, opts.Name))
+func (o *Options) init() {
+	if o.Host == "" {
+		o.Host = "localhost"
+	}
+
+	if o.Port == 0 {
+		o.Port = 5432
+	}
+
+	if o.Name == "" {
+		log.Fatal("database > name | must be defined")
+	}
+
+	if o.Username == "" {
+		log.Fatal("database > username | must be defined")
+	}
+
+	if o.Password == "" {
+		log.Fatal("database > password | must be defined")
+	}
+}
+
+func Init(opts *Options) error {
+
+	opts.init()
+
+	newPool, err := pgxpool.Connect(ctx, fmt.Sprintf("postgresl://%s:%s@%s:%d/%s", opts.Username, opts.Password, opts.Host, opts.Port, opts.Name))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		return nil, err
+		return err
 	}
 
-	database := &Database{
-		pool: pool,
-	}
+	pool = newPool
 
-	return database, nil
+	return nil
 }
 
-func (db *Database) Query(sql string, args ...interface{}) (pgx.Rows, error) {
-	return db.pool.Query(ctx, sql, args...)
+func Query(sql string, args ...interface{}) (pgx.Rows, error) {
+	return pool.Query(ctx, sql, args...)
 }
 
-func (db *Database) QueryRow(sql string, args ...interface{}) pgx.Row {
-	return db.pool.QueryRow(ctx, sql, args...)
+func QueryRow(sql string, args ...interface{}) pgx.Row {
+	return pool.QueryRow(ctx, sql, args...)
 }
